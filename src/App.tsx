@@ -25,17 +25,17 @@ import type {
 
 const sections: ResumeSectionId[] = [
   'basics',
-  'work',
-  'volunteer',
-  'education',
-  'awards',
-  'certificates',
-  'publications',
   'skills',
+  'work',
+  'education',
+  'certificates',
+  'projects',
+  'references',
   'languages',
   'interests',
-  'references',
-  'projects',
+  'volunteer',
+  'publications',
+  'awards',
 ]
 
 const RESUME_DRAFT_STORAGE_KEY = 'jsonResumeEditor:draft:v1'
