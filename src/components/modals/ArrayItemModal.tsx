@@ -21,8 +21,10 @@ export function ArrayItemModal<TItem extends object>({
     { key: string; addButtonLabel: string }
   > = {
     work: { key: 'highlights', addButtonLabel: 'Add highlight' },
+    volunteer: { key: 'highlights', addButtonLabel: 'Add highlight' },
     education: { key: 'courses', addButtonLabel: 'Add course' },
     skills: { key: 'keywords', addButtonLabel: 'Add keyword' },
+    interests: { key: 'keywords', addButtonLabel: 'Add keyword' },
     projects: { key: 'highlights', addButtonLabel: 'Add highlight' },
   }
 

@@ -4,15 +4,34 @@ export const defaultResume: ResumeData = {
   basics: {
     name: '',
     label: '',
+    image: '',
     email: '',
     phone: '',
     url: '',
     summary: '',
+    location: {
+      address: '',
+      postalCode: '',
+      city: '',
+      countryCode: '',
+      region: '',
+    },
     profiles: [],
   },
   work: [
     {
       name: '',
+      position: '',
+      url: '',
+      startDate: '',
+      endDate: '',
+      summary: '',
+      highlights: [],
+    },
+  ],
+  volunteer: [
+    {
+      organization: '',
       position: '',
       url: '',
       startDate: '',
@@ -33,11 +52,54 @@ export const defaultResume: ResumeData = {
       courses: [],
     },
   ],
+  awards: [
+    {
+      title: '',
+      date: '',
+      awarder: '',
+      summary: '',
+    },
+  ],
+  certificates: [
+    {
+      name: '',
+      date: '',
+      issuer: '',
+      url: '',
+    },
+  ],
+  publications: [
+    {
+      name: '',
+      publisher: '',
+      releaseDate: '',
+      url: '',
+      summary: '',
+    },
+  ],
   skills: [
     {
       name: '',
       level: '',
       keywords: [],
+    },
+  ],
+  languages: [
+    {
+      language: '',
+      fluency: '',
+    },
+  ],
+  interests: [
+    {
+      name: '',
+      keywords: [],
+    },
+  ],
+  references: [
+    {
+      name: '',
+      reference: '',
     },
   ],
   projects: [

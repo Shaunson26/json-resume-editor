@@ -38,8 +38,34 @@ export const parseResumeJson = (text: string): ParseResult => {
     return { ok: false, error: 'The "basics" section must be an object.' }
   }
 
-  const arraySections: Array<keyof Pick<ResumeData, 'work' | 'education' | 'skills' | 'projects'>> =
-    ['work', 'education', 'skills', 'projects']
+  const arraySections: Array<
+    keyof Pick<
+      ResumeData,
+      | 'work'
+      | 'volunteer'
+      | 'education'
+      | 'awards'
+      | 'certificates'
+      | 'publications'
+      | 'skills'
+      | 'languages'
+      | 'interests'
+      | 'references'
+      | 'projects'
+    >
+  > = [
+    'work',
+    'volunteer',
+    'education',
+    'awards',
+    'certificates',
+    'publications',
+    'skills',
+    'languages',
+    'interests',
+    'references',
+    'projects',
+  ]
 
   for (const section of arraySections) {
     if (section in parsed && !Array.isArray(parsed[section])) {
@@ -50,6 +76,9 @@ export const parseResumeJson = (text: string): ParseResult => {
     }
   }
 
+  const basicsValue = isRecord(parsed.basics) ? parsed.basics : {}
+  const locationValue = isRecord(basicsValue.location) ? basicsValue.location : {}
+
   const merged: ResumeData = {
     // Keep a typed handle for optional basics object.
     // This avoids unsafe property access on unknown values.
@@ -57,9 +86,20 @@ export const parseResumeJson = (text: string): ParseResult => {
     ...parsed,
     basics: {
       ...defaultResume.basics,
-      ...(isRecord(parsed.basics) ? parsed.basics : {}),
-      profiles: Array.isArray((isRecord(parsed.basics) ? parsed.basics : {}).profiles)
-        ? ((isRecord(parsed.basics) ? parsed.basics : {}).profiles as unknown[])
+      ...basicsValue,
+      location: {
+        address: typeof locationValue.address === 'string' ? locationValue.address : '',
+        postalCode:
+          typeof locationValue.postalCode === 'string' ? locationValue.postalCode : '',
+        city: typeof locationValue.city === 'string' ? locationValue.city : '',
+        countryCode:
+          typeof locationValue.countryCode === 'string'
+            ? locationValue.countryCode
+            : '',
+        region: typeof locationValue.region === 'string' ? locationValue.region : '',
+      },
+      profiles: Array.isArray(basicsValue.profiles)
+        ? (basicsValue.profiles as unknown[])
             .filter(isRecord)
             .map((item) => ({
             network: typeof item.network === 'string' ? item.network : '',
@@ -79,6 +119,18 @@ export const parseResumeJson = (text: string): ParseResult => {
           highlights: isStringArray(item.highlights) ? item.highlights : [],
         }))
       : defaultResume.work,
+    volunteer: Array.isArray(parsed.volunteer)
+      ? parsed.volunteer.filter(isRecord).map((item) => ({
+          organization:
+            typeof item.organization === 'string' ? item.organization : '',
+          position: typeof item.position === 'string' ? item.position : '',
+          url: typeof item.url === 'string' ? item.url : '',
+          startDate: typeof item.startDate === 'string' ? item.startDate : '',
+          endDate: typeof item.endDate === 'string' ? item.endDate : '',
+          summary: typeof item.summary === 'string' ? item.summary : '',
+          highlights: isStringArray(item.highlights) ? item.highlights : [],
+        }))
+      : defaultResume.volunteer,
     education: Array.isArray(parsed.education)
       ? parsed.education.filter(isRecord).map((item) => ({
           institution: typeof item.institution === 'string' ? item.institution : '',
@@ -91,6 +143,32 @@ export const parseResumeJson = (text: string): ParseResult => {
           courses: isStringArray(item.courses) ? item.courses : [],
         }))
       : defaultResume.education,
+    awards: Array.isArray(parsed.awards)
+      ? parsed.awards.filter(isRecord).map((item) => ({
+          title: typeof item.title === 'string' ? item.title : '',
+          date: typeof item.date === 'string' ? item.date : '',
+          awarder: typeof item.awarder === 'string' ? item.awarder : '',
+          summary: typeof item.summary === 'string' ? item.summary : '',
+        }))
+      : defaultResume.awards,
+    certificates: Array.isArray(parsed.certificates)
+      ? parsed.certificates.filter(isRecord).map((item) => ({
+          name: typeof item.name === 'string' ? item.name : '',
+          date: typeof item.date === 'string' ? item.date : '',
+          issuer: typeof item.issuer === 'string' ? item.issuer : '',
+          url: typeof item.url === 'string' ? item.url : '',
+        }))
+      : defaultResume.certificates,
+    publications: Array.isArray(parsed.publications)
+      ? parsed.publications.filter(isRecord).map((item) => ({
+          name: typeof item.name === 'string' ? item.name : '',
+          publisher: typeof item.publisher === 'string' ? item.publisher : '',
+          releaseDate:
+            typeof item.releaseDate === 'string' ? item.releaseDate : '',
+          url: typeof item.url === 'string' ? item.url : '',
+          summary: typeof item.summary === 'string' ? item.summary : '',
+        }))
+      : defaultResume.publications,
     skills: Array.isArray(parsed.skills)
       ? parsed.skills.filter(isRecord).map((item) => ({
           name: typeof item.name === 'string' ? item.name : '',
@@ -98,6 +176,24 @@ export const parseResumeJson = (text: string): ParseResult => {
           keywords: isStringArray(item.keywords) ? item.keywords : [],
         }))
       : defaultResume.skills,
+    languages: Array.isArray(parsed.languages)
+      ? parsed.languages.filter(isRecord).map((item) => ({
+          language: typeof item.language === 'string' ? item.language : '',
+          fluency: typeof item.fluency === 'string' ? item.fluency : '',
+        }))
+      : defaultResume.languages,
+    interests: Array.isArray(parsed.interests)
+      ? parsed.interests.filter(isRecord).map((item) => ({
+          name: typeof item.name === 'string' ? item.name : '',
+          keywords: isStringArray(item.keywords) ? item.keywords : [],
+        }))
+      : defaultResume.interests,
+    references: Array.isArray(parsed.references)
+      ? parsed.references.filter(isRecord).map((item) => ({
+          name: typeof item.name === 'string' ? item.name : '',
+          reference: typeof item.reference === 'string' ? item.reference : '',
+        }))
+      : defaultResume.references,
     projects: Array.isArray(parsed.projects)
       ? parsed.projects.filter(isRecord).map((item) => ({
           name: typeof item.name === 'string' ? item.name : '',
