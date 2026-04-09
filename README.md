@@ -46,6 +46,21 @@ Lint:
 npm run lint
 ```
 
+## Deploy to GitHub Pages
+
+This project is configured to deploy automatically with GitHub Actions.
+
+1. Push this repo to GitHub.
+2. In GitHub, open `Settings -> Pages`.
+3. Set **Source** to **GitHub Actions**.
+4. Push to the `main` branch (or run the workflow manually from the Actions tab).
+
+The workflow builds the app and deploys the `dist` folder to GitHub Pages.
+
+Notes:
+- Vite `base` is set automatically in CI using your repository name.
+- A `404.html` copy of `index.html` is generated so SPA route refreshes still load the app.
+
 ## Project structure
 
 ```text
