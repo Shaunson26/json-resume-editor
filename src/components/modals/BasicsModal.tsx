@@ -13,6 +13,9 @@ export function BasicsModal({
   onSave,
 }: BasicsModalProps) {
   const [draft, setDraft] = useState<Basics>(initialValue)
+  const [activeTab, setActiveTab] = useState<'nameSummary' | 'address' | 'profiles'>(
+    'nameSummary',
+  )
 
   const updateField = (
     key: Exclude<keyof Basics, 'location' | 'profiles'>,
@@ -73,145 +76,182 @@ export function BasicsModal({
         onClick={(event) => event.stopPropagation()}
       >
         <h3>Edit basics</h3>
-        <div className="modal-grid">
-          <label>
-            Name
-            <input
-              value={draft.name}
-              onChange={(event) => updateField('name', event.target.value)}
-            />
-          </label>
-          <label>
-            Label
-            <input
-              value={draft.label}
-              onChange={(event) => updateField('label', event.target.value)}
-            />
-          </label>
-          <label>
-            Image
-            <input
-              value={draft.image}
-              onChange={(event) => updateField('image', event.target.value)}
-            />
-          </label>
-          <label>
-            Email
-            <input
-              value={draft.email}
-              onChange={(event) => updateField('email', event.target.value)}
-            />
-          </label>
-          <label>
-            Phone
-            <input
-              value={draft.phone}
-              onChange={(event) => updateField('phone', event.target.value)}
-            />
-          </label>
-          <label>
-            URL
-            <input
-              value={draft.url}
-              onChange={(event) => updateField('url', event.target.value)}
-            />
-          </label>
-          <label className="full-row">
-            Summary
-            <textarea
-              rows={4}
-              value={draft.summary}
-              onChange={(event) => updateField('summary', event.target.value)}
-            />
-          </label>
-          <label>
+        <div className="modal-tabs" role="tablist" aria-label="Basics sections">
+          <button
+            type="button"
+            role="tab"
+            className={activeTab === 'nameSummary' ? 'is-active' : undefined}
+            aria-selected={activeTab === 'nameSummary'}
+            onClick={() => setActiveTab('nameSummary')}
+          >
+            Name to summary
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={activeTab === 'address' ? 'is-active' : undefined}
+            aria-selected={activeTab === 'address'}
+            onClick={() => setActiveTab('address')}
+          >
             Address
-            <input
-              value={draft.location.address}
-              onChange={(event) =>
-                updateLocationField('address', event.target.value)
-              }
-            />
-          </label>
-          <label>
-            Postal code
-            <input
-              value={draft.location.postalCode}
-              onChange={(event) =>
-                updateLocationField('postalCode', event.target.value)
-              }
-            />
-          </label>
-          <label>
-            City
-            <input
-              value={draft.location.city}
-              onChange={(event) => updateLocationField('city', event.target.value)}
-            />
-          </label>
-          <label>
-            Country code
-            <input
-              value={draft.location.countryCode}
-              onChange={(event) =>
-                updateLocationField('countryCode', event.target.value)
-              }
-            />
-          </label>
-          <label>
-            Region
-            <input
-              value={draft.location.region}
-              onChange={(event) => updateLocationField('region', event.target.value)}
-            />
-          </label>
-          <div className="full-row">
-            <span>Profiles</span>
-            {draft.profiles.length > 0 ? (
-              draft.profiles.map((profile, index) => (
-                <div key={`profile-${index}`} className="profile-group">
-                  <div className="modal-grid">
-                    <label>
-                      Network
-                      <input
-                        value={profile.network}
-                        onChange={(event) =>
-                          updateProfileField(index, 'network', event.target.value)
-                        }
-                      />
-                    </label>
-                    <label>
-                      Username
-                      <input
-                        value={profile.username}
-                        onChange={(event) =>
-                          updateProfileField(index, 'username', event.target.value)
-                        }
-                      />
-                    </label>
-                    <label className="full-row">
-                      URL
-                      <input
-                        value={profile.url}
-                        onChange={(event) =>
-                          updateProfileField(index, 'url', event.target.value)
-                        }
-                      />
-                    </label>
-                  </div>
-                  <button type="button" onClick={() => deleteProfile(index)}>
-                    Delete profile
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p className="section-empty">No profiles yet.</p>
-            )}
-            <button type="button" className="add-highlight-button" onClick={addProfile}>
-              Add profile
-            </button>
-          </div>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={activeTab === 'profiles' ? 'is-active' : undefined}
+            aria-selected={activeTab === 'profiles'}
+            onClick={() => setActiveTab('profiles')}
+          >
+            Profiles
+          </button>
         </div>
+        {activeTab === 'nameSummary' && (
+          <div className="modal-grid">
+            <label>
+              Name
+              <input
+                value={draft.name}
+                onChange={(event) => updateField('name', event.target.value)}
+              />
+            </label>
+            <label>
+              Label
+              <input
+                value={draft.label}
+                onChange={(event) => updateField('label', event.target.value)}
+              />
+            </label>
+            <label>
+              Image
+              <input
+                value={draft.image}
+                onChange={(event) => updateField('image', event.target.value)}
+              />
+            </label>
+            <label>
+              Email
+              <input
+                value={draft.email}
+                onChange={(event) => updateField('email', event.target.value)}
+              />
+            </label>
+            <label>
+              Phone
+              <input
+                value={draft.phone}
+                onChange={(event) => updateField('phone', event.target.value)}
+              />
+            </label>
+            <label>
+              URL
+              <input
+                value={draft.url}
+                onChange={(event) => updateField('url', event.target.value)}
+              />
+            </label>
+            <label className="full-row">
+              Summary
+              <textarea
+                rows={4}
+                value={draft.summary}
+                onChange={(event) => updateField('summary', event.target.value)}
+              />
+            </label>
+          </div>
+        )}
+        {activeTab === 'address' && (
+          <div className="modal-grid">
+            <label>
+              Address
+              <input
+                value={draft.location.address}
+                onChange={(event) => updateLocationField('address', event.target.value)}
+              />
+            </label>
+            <label>
+              Postal code
+              <input
+                value={draft.location.postalCode}
+                onChange={(event) =>
+                  updateLocationField('postalCode', event.target.value)
+                }
+              />
+            </label>
+            <label>
+              City
+              <input
+                value={draft.location.city}
+                onChange={(event) => updateLocationField('city', event.target.value)}
+              />
+            </label>
+            <label>
+              Country code
+              <input
+                value={draft.location.countryCode}
+                onChange={(event) =>
+                  updateLocationField('countryCode', event.target.value)
+                }
+              />
+            </label>
+            <label>
+              Region
+              <input
+                value={draft.location.region}
+                onChange={(event) => updateLocationField('region', event.target.value)}
+              />
+            </label>
+          </div>
+        )}
+        {activeTab === 'profiles' && (
+          <div className="modal-grid">
+            <div className="full-row">
+              <span>Profiles</span>
+              {draft.profiles.length > 0 ? (
+                draft.profiles.map((profile, index) => (
+                  <div key={`profile-${index}`} className="profile-group">
+                    <div className="modal-grid">
+                      <label>
+                        Network
+                        <input
+                          value={profile.network}
+                          onChange={(event) =>
+                            updateProfileField(index, 'network', event.target.value)
+                          }
+                        />
+                      </label>
+                      <label>
+                        Username
+                        <input
+                          value={profile.username}
+                          onChange={(event) =>
+                            updateProfileField(index, 'username', event.target.value)
+                          }
+                        />
+                      </label>
+                      <label className="full-row">
+                        URL
+                        <input
+                          value={profile.url}
+                          onChange={(event) =>
+                            updateProfileField(index, 'url', event.target.value)
+                          }
+                        />
+                      </label>
+                    </div>
+                    <button type="button" onClick={() => deleteProfile(index)}>
+                      Delete profile
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="section-empty">No profiles yet.</p>
+              )}
+              <button type="button" className="add-highlight-button" onClick={addProfile}>
+                Add profile
+              </button>
+            </div>
+          </div>
+        )}
         <div className="modal-actions">
           <button type="button" onClick={onCancel}>
             Cancel

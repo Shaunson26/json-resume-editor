@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { SectionCard } from './components/SectionCard'
-import { Sidebar } from './components/Sidebar'
+import { Sidebar, type SectionDisplayMeta } from './components/Sidebar'
 import { ArrayItemModal } from './components/modals/ArrayItemModal'
 import { BasicsModal } from './components/modals/BasicsModal'
 import { defaultResume } from './data/defaultResume'
@@ -39,11 +39,29 @@ const sections: ResumeSectionId[] = [
 ]
 
 const RESUME_DRAFT_STORAGE_KEY = 'jsonResumeEditor:draft:v1'
+const THEME_STORAGE_KEY = 'jsonResumeEditor:theme:v1'
+
+type Theme = 'light' | 'dark'
 
 type PersistedResumeDraft = {
   version: 1
   savedAt: string
   data: ResumeData
+}
+
+const sectionDisplay: Record<ResumeSectionId, SectionDisplayMeta> = {
+  basics: { label: 'Basics', icon: '👤' },
+  work: { label: 'Work', icon: '💼' },
+  volunteer: { label: 'Volunteer', icon: '🤝' },
+  education: { label: 'Education', icon: '🎓' },
+  awards: { label: 'Awards', icon: '🏆' },
+  certificates: { label: 'Certificates', icon: '📜' },
+  publications: { label: 'Publications', icon: '📰' },
+  skills: { label: 'Skills', icon: '🛠️' },
+  languages: { label: 'Languages', icon: '🗣️' },
+  interests: { label: 'Interests', icon: '🎯' },
+  references: { label: 'References', icon: '👥' },
+  projects: { label: 'Projects', icon: '🚀' },
 }
 
 const loadInitialResume = (): ResumeData => {
@@ -87,6 +105,21 @@ const loadInitialSavedAt = (): string | null => {
   } catch {
     return null
   }
+}
+
+const loadInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'light'
+  }
+
+  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
+  if (storedTheme === 'light' || storedTheme === 'dark') {
+    return storedTheme
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
 }
 
 const createEmptyArrayItem = (
@@ -210,6 +243,7 @@ function App() {
     index: number
   } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
+  const [theme, setTheme] = useState<Theme>(() => loadInitialTheme())
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const moveArrayItem = useCallback((
@@ -337,6 +371,11 @@ function App() {
       // Ignore storage failures (quota/private mode) and keep app usable.
     }
   }, [resume])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+  }, [theme])
 
   const draftSavedLabel = useMemo(() => {
     if (!lastSavedAt) {
@@ -1190,6 +1229,10 @@ function App() {
     window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY)
   }
 
+  const toggleTheme = () => {
+    setTheme((previousTheme) => (previousTheme === 'light' ? 'dark' : 'light'))
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -1204,6 +1247,19 @@ function App() {
           </button>
           <button type="button" onClick={handleResetDraft}>
             Reset draft
+          </button>
+          <button
+            type="button"
+            className={`theme-toggle ${theme === 'dark' ? 'is-on' : ''}`}
+            onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            aria-pressed={theme === 'dark'}
+            title="Toggle dark mode"
+          >
+            <span className="theme-toggle-track" aria-hidden="true">
+              <span className="theme-toggle-thumb" />
+            </span>
+            <span className="theme-toggle-label">Dark mode</span>
           </button>
         </div>
       </header>
@@ -1226,14 +1282,18 @@ function App() {
       ) : null}
 
       <div className="layout">
-        <Sidebar sections={sections} activeSection={activeSection} />
+        <Sidebar
+          sections={sections}
+          activeSection={activeSection}
+          sectionDisplay={sectionDisplay}
+        />
 
         <main className="content">
           {sections.map((section) => (
             <SectionCard
               key={section}
               sectionId={section}
-              title={section}
+              title={sectionDisplay[section].label}
               subtitle={sectionDescriptions[section]}
               rows={sectionRows[section]}
               onEdit={() => {

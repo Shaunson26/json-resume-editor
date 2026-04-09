@@ -1,7 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-muted: #eef3fb;
+  --text: #111827;
+  --text-muted: #475569;
+  --border: #d8e0ee;
+  --accent: #4f46e5;
+  --accent-soft: #e0e7ff;
+  --accent-strong: #3730a3;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --shadow-soft: 0 14px 30px rgba(79, 70, 229, 0.08);
+}
+
+[data-theme='dark'] {
+  --bg: #0b1220;
+  --surface: #121a2a;
+  --surface-muted: #182338;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #273449;
+  --accent: #818cf8;
+  --accent-soft: #1f2a44;
+  --accent-strong: #c7d2fe;
+  --danger: #f87171;
+  --danger-soft: #3f1d25;
+  --shadow-soft: 0 14px 30px rgba(2, 8, 23, 0.45);
+}
+
 .app-shell {
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  color: var(--text);
+  font-family: Manrope, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  overflow: hidden;
 }
 
 html {
@@ -14,8 +50,9 @@ html {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
 }
 
 .topbar h1 {
@@ -31,7 +68,7 @@ html {
 
 .draft-saved-status {
   font-size: 0.85rem;
-  color: #475569;
+  color: var(--text-muted);
   margin-right: 0.35rem;
   white-space: nowrap;
 }
@@ -50,12 +87,56 @@ html {
 
 .toolbar button,
 .section-heading button {
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #334155;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
   border-radius: 0.5rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0.2rem 0.3rem;
+}
+
+.theme-toggle-track {
+  width: 2.1rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 35%, var(--surface-muted));
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem;
+  transition: background-color 140ms ease;
+}
+
+.theme-toggle-thumb {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  transform: translateX(0);
+  transition: transform 140ms ease;
+}
+
+.theme-toggle.is-on .theme-toggle-track {
+  background: var(--accent);
+}
+
+.theme-toggle.is-on .theme-toggle-thumb {
+  transform: translateX(0.9rem);
+}
+
+.theme-toggle-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .row-item {
@@ -75,9 +156,9 @@ html {
 
 .row-item button,
 .row-actions button {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #1e293b;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   border-radius: 0.4rem;
   padding: 0.2rem 0.5rem;
   font-size: 0.8rem;
@@ -106,20 +187,22 @@ html {
 
 .section-row-title {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .section-row-details {
   margin: 0.35rem 0 0;
-  padding-left: 1.25rem;
-  color: #334155;
+  padding-left: 0;
+  list-style: none;
+  color: var(--text-muted);
   display: grid;
   gap: 0.2rem;
 }
 
 .section-row-sublist {
   margin: 0.25rem 0 0;
-  padding-left: 1.1rem;
+  padding-left: 0.75rem;
+  list-style: none;
 }
 
 .modal-overlay {
@@ -136,15 +219,40 @@ html {
   width: min(720px, 100%);
   max-height: 90vh;
   overflow: auto;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   padding: 1rem;
 }
 
 .modal h3 {
   margin: 0 0 0.75rem;
   text-transform: capitalize;
+}
+
+.modal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.55rem;
+}
+
+.modal-tabs button {
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.modal-tabs button.is-active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
 }
 
 .modal-grid {
@@ -157,13 +265,15 @@ html {
   display: grid;
   gap: 0.35rem;
   font-size: 0.9rem;
-  color: #334155;
+  color: var(--text-muted);
   text-transform: capitalize;
 }
 
 .modal-grid input,
 .modal-grid textarea {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface);
   border-radius: 0.5rem;
   padding: 0.45rem 0.55rem;
   font: inherit;
@@ -175,16 +285,16 @@ html {
 
 .add-highlight-button {
   margin-top: 0.4rem;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #334155;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
   border-radius: 0.5rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
 }
 
 .profile-group {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 0.65rem;
   margin-top: 0.5rem;
@@ -200,9 +310,9 @@ html {
 }
 
 .modal-actions button {
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #334155;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
   border-radius: 0.5rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
@@ -214,12 +324,12 @@ html {
 
 .confirm-modal p {
   margin: 0.5rem 0 0;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .danger-button {
-  border-color: #ef4444 !important;
-  background: #ef4444 !important;
+  border-color: var(--danger) !important;
+  background: var(--danger) !important;
   color: #ffffff !important;
 }
 
@@ -230,17 +340,17 @@ html {
   gap: 0.75rem;
   margin: 0.75rem 1rem 0;
   padding: 0.65rem 0.85rem;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  background: var(--danger-soft);
+  color: var(--danger);
   border-radius: 0.5rem;
   font-size: 0.9rem;
 }
 
 .error-banner button {
-  border: 1px solid #fca5a5;
-  background: #ffffff;
-  color: #991b1b;
+  border: 1px solid color-mix(in srgb, var(--danger) 55%, transparent);
+  background: var(--surface);
+  color: var(--danger);
   border-radius: 0.4rem;
   padding: 0.2rem 0.5rem;
   font-size: 0.8rem;
@@ -251,12 +361,14 @@ html {
   grid-template-columns: 220px 1fr;
   min-height: 0;
   flex: 1;
+  overflow: hidden;
 }
 
 .sidebar {
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid var(--border);
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--surface-muted);
+  overflow: auto;
 }
 
 .sidebar h2 {
@@ -274,21 +386,29 @@ html {
 }
 
 .sidebar a {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
-  color: #0f172a;
+  color: var(--text);
   padding: 0.35rem 0.45rem;
   border-radius: 0.35rem;
+  width: 100%;
 }
 
 .sidebar a:hover {
-  background: #e2e8f0;
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface-muted));
 }
 
 .sidebar a.is-active {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
   font-weight: 600;
+}
+
+.sidebar-icon {
+  width: 1.1rem;
+  text-align: center;
 }
 
 .content {
@@ -300,10 +420,11 @@ html {
 }
 
 .section-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
-  background: #ffffff;
+  background: var(--surface);
   padding: 1rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .section-heading {
@@ -315,27 +436,27 @@ html {
 
 .section-heading h3 {
   margin: 0;
-  text-transform: capitalize;
   font-size: 1rem;
 }
 
 .section-subtitle {
   margin: 0.35rem 0 0;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 0.92rem;
 }
 
 .section-list {
   margin: 0.85rem 0 0;
-  padding-left: 1.1rem;
-  color: #1e293b;
+  padding-left: 0;
+  list-style: none;
+  color: var(--text);
   display: grid;
   gap: 0.35rem;
 }
 
 .section-empty {
   margin: 0.85rem 0 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.92rem;
 }
 
@@ -356,7 +477,7 @@ html {
 
   .sidebar {
     border-right: 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
   }
 
   .modal-grid {

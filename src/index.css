@@ -1,8 +1,14 @@
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
-  color: #0f172a;
-  background: #f1f5f9;
+  font-family: Manrope, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  overflow: hidden;
 }
 
 * {
@@ -10,5 +16,5 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  height: 100%;
 }
