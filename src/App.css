@@ -156,6 +156,9 @@ html {
 
 .row-item textarea {
   resize: vertical;
+}
+
+.row-item textarea.row-item-textarea--tall {
   min-height: 4.5rem;
 }
 

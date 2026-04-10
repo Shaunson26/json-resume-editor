@@ -82,6 +82,8 @@ export function ArrayItemModal<TItem extends object>({
   const dynamicArrayField = DYNAMIC_ARRAY_FIELD_CONFIG[sectionLabel]
   const tabbedHighlightsModal =
     Boolean(dynamicArrayField && dynamicArrayField.key === 'highlights')
+  const tallDynamicListRows =
+    sectionLabel === 'work' || sectionLabel === 'projects'
 
   useEffect(() => {
     setActiveTab('details')
@@ -166,7 +168,12 @@ export function ArrayItemModal<TItem extends object>({
             {arrayItems.map((arrayItem, arrayItemIndex) => (
               <div key={`${key}-${arrayItemIndex}`} className="row-item">
                 <textarea
-                  rows={4}
+                  className={
+                    tallDynamicListRows
+                      ? 'row-item-textarea--tall'
+                      : 'row-item-textarea--compact'
+                  }
+                  rows={tallDynamicListRows ? 4 : 1}
                   value={arrayItem}
                   onChange={(event) =>
                     updateArrayItemField(key, arrayItemIndex, event.target.value)
