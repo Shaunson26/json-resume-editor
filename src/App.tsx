@@ -5,6 +5,7 @@ import { SectionCard } from './components/SectionCard'
 import { Sidebar, type SectionDisplayMeta } from './components/Sidebar'
 import { ArrayItemModal } from './components/modals/ArrayItemModal'
 import { BasicsModal } from './components/modals/BasicsModal'
+import { ExportJsonModal } from './components/modals/ExportJsonModal'
 import { defaultResume } from './data/defaultResume'
 import { downloadResumeJson, parseResumeJson } from './utils/importExport'
 import type {
@@ -261,6 +262,7 @@ function App() {
   )
   const [activeSection, setActiveSection] = useState<ResumeSectionId>('basics')
   const [isBasicsModalOpen, setIsBasicsModalOpen] = useState(false)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [editingArrayItem, setEditingArrayItem] = useState<{
     section: ResumeArraySectionId
     index: number
@@ -1070,13 +1072,19 @@ function App() {
     setResume(result.data)
     setImportError(null)
     setIsBasicsModalOpen(false)
+    setIsExportModalOpen(false)
     setEditingArrayItem(null)
     setPendingDelete(null)
     event.target.value = ''
   }
 
-  const handleExport = () => {
+  const handleOpenExportModal = () => {
+    setIsExportModalOpen(true)
+  }
+
+  const handleExportSave = () => {
     downloadResumeJson(resume, 'resume.json')
+    setIsExportModalOpen(false)
   }
 
   const handleResetDraft = () => {
@@ -1084,6 +1092,7 @@ function App() {
     setLastSavedAt(null)
     setImportError(null)
     setIsBasicsModalOpen(false)
+    setIsExportModalOpen(false)
     setEditingArrayItem(null)
     setPendingDelete(null)
     window.localStorage.removeItem(RESUME_DRAFT_STORAGE_KEY)
@@ -1102,7 +1111,7 @@ function App() {
           <button type="button" onClick={handleClickImport}>
             Import JSON
           </button>
-          <button type="button" onClick={handleExport}>
+          <button type="button" onClick={handleOpenExportModal}>
             Export JSON
           </button>
           <button type="button" onClick={handleResetDraft}>
@@ -1183,6 +1192,14 @@ function App() {
             setResume((previous) => ({ ...previous, basics: nextBasics }))
             setIsBasicsModalOpen(false)
           }}
+        />
+      ) : null}
+
+      {isExportModalOpen ? (
+        <ExportJsonModal
+          resume={resume}
+          onCancel={() => setIsExportModalOpen(false)}
+          onSave={handleExportSave}
         />
       ) : null}
 
