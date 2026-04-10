@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import { ItemRowActions } from './components/ItemRowActions'
 import { SectionCard } from './components/SectionCard'
 import { Sidebar, type SectionDisplayMeta } from './components/Sidebar'
 import { ArrayItemModal } from './components/modals/ArrayItemModal'
@@ -22,6 +23,30 @@ import type {
   VolunteerItem,
   WorkItem,
 } from './types/resume'
+
+function previewDetailLine(label: string, value: string) {
+  return (
+    <>
+      <strong>{label}</strong>
+      {value ? ` ${value}` : ''}
+    </>
+  )
+}
+
+function formatPreviewDateRange(startRaw: string, endRaw: string) {
+  const start = startRaw ?? ''
+  const end = endRaw ?? ''
+  if (!start && !end) {
+    return ''
+  }
+  if (start && end) {
+    return `${start} - ${end}`
+  }
+  if (start) {
+    return `${start} - Present`
+  }
+  return end
+}
 
 const sections: ResumeSectionId[] = [
   'basics',
@@ -391,13 +416,14 @@ function App() {
   const sectionRows = useMemo(
     () => ({
       basics: [
-        `Name: ${resume.basics.name || 'Not set'}`,
-        `Label: ${resume.basics.label || 'Not set'}`,
-        `Image: ${resume.basics.image || 'Not set'}`,
-        `Email: ${resume.basics.email || 'Not set'}`,
-        `Phone: ${resume.basics.phone || 'Not set'}`,
-        `URL: ${resume.basics.url || 'Not set'}`,
-        `Location: ${
+        previewDetailLine('Name:', resume.basics.name ?? ''),
+        previewDetailLine('Label:', resume.basics.label ?? ''),
+        previewDetailLine('Image:', resume.basics.image ?? ''),
+        previewDetailLine('Email:', resume.basics.email ?? ''),
+        previewDetailLine('Phone:', resume.basics.phone ?? ''),
+        previewDetailLine('URL:', resume.basics.url ?? ''),
+        previewDetailLine(
+          'Location:',
           [
             resume.basics.location.address,
             resume.basics.location.city,
@@ -406,10 +432,15 @@ function App() {
             resume.basics.location.countryCode,
           ]
             .filter(Boolean)
-            .join(', ') || 'Not set'
-        }`,
-        `Profiles: ${resume.basics.profiles.length} entries`,
-        `Summary: ${resume.basics.summary || 'Not set'}`,
+            .join(', '),
+        ),
+        (
+          <>
+            <strong>Profiles:</strong>
+            {` ${resume.basics.profiles.length} entries`}
+          </>
+        ),
+        previewDetailLine('Summary:', resume.basics.summary ?? ''),
       ],
       work: resume.work.map((item, index) => (
         <div
@@ -433,13 +464,16 @@ function App() {
               {item.name || 'Unknown company'}
             </p>
             <ul className="section-row-details">
-              <li>Company URL: {item.url || 'Not set'}</li>
+              <li>{previewDetailLine('Company URL:', item.url ?? '')}</li>
               <li>
-                Dates: {item.startDate || 'Not set'} - {item.endDate || 'Present'}
+                {previewDetailLine(
+                  'Dates:',
+                  formatPreviewDateRange(item.startDate, item.endDate),
+                )}
               </li>
-              <li>Summary: {item.summary || 'Not set'}</li>
+              <li>{previewDetailLine('Summary:', item.summary ?? '')}</li>
               <li>
-                Highlights:
+                <strong>Highlights:</strong>
                 {item.highlights.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.highlights.map((highlight, highlightIndex) => (
@@ -448,42 +482,24 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move work item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('work', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move work item down"
-              disabled={index === resume.work.length - 1}
-              onClick={() => moveArrayItemByOffset('work', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'work', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('work', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.work.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('work', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('work', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'work', index })}
+            onDelete={() => requestDeleteArrayItem('work', index)}
+            labels={{
+              moveUp: 'Move work item up',
+              moveDown: 'Move work item down',
+              edit: 'Edit work item',
+              delete: 'Delete work item',
+            }}
+          />
         </div>
       )),
       volunteer: resume.volunteer.map((item, index) => (
@@ -508,13 +524,16 @@ function App() {
               {item.organization || 'Unknown organization'}
             </p>
             <ul className="section-row-details">
-              <li>Organization URL: {item.url || 'Not set'}</li>
+              <li>{previewDetailLine('Organization URL:', item.url ?? '')}</li>
               <li>
-                Dates: {item.startDate || 'Not set'} - {item.endDate || 'Present'}
+                {previewDetailLine(
+                  'Dates:',
+                  formatPreviewDateRange(item.startDate, item.endDate),
+                )}
               </li>
-              <li>Summary: {item.summary || 'Not set'}</li>
+              <li>{previewDetailLine('Summary:', item.summary ?? '')}</li>
               <li>
-                Highlights:
+                <strong>Highlights:</strong>
                 {item.highlights.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.highlights.map((highlight, highlightIndex) => (
@@ -523,42 +542,24 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move volunteer item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('volunteer', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move volunteer item down"
-              disabled={index === resume.volunteer.length - 1}
-              onClick={() => moveArrayItemByOffset('volunteer', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'volunteer', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('volunteer', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.volunteer.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('volunteer', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('volunteer', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'volunteer', index })}
+            onDelete={() => requestDeleteArrayItem('volunteer', index)}
+            labels={{
+              moveUp: 'Move volunteer item up',
+              moveDown: 'Move volunteer item down',
+              edit: 'Edit volunteer item',
+              delete: 'Delete volunteer item',
+            }}
+          />
         </div>
       )),
       education: resume.education.map((item, index) => (
@@ -583,56 +584,41 @@ function App() {
               {item.area || 'Area not set'}
             </p>
             <ul className="section-row-details">
-              <li>Institution: {item.institution || 'Not set'}</li>
-              <li>Institution URL: {item.url || 'Not set'}</li>
+              <li>{previewDetailLine('Institution:', item.institution ?? '')}</li>
+              <li>{previewDetailLine('Institution URL:', item.url ?? '')}</li>
               <li>
-                Dates: {item.startDate || 'Not set'} - {item.endDate || 'Present'}
+                {previewDetailLine(
+                  'Dates:',
+                  formatPreviewDateRange(item.startDate, item.endDate),
+                )}
               </li>
-              <li>Score: {item.score || 'Not set'}</li>
+              <li>{previewDetailLine('Score:', item.score ?? '')}</li>
               <li>
-                Courses:
+                <strong>Courses:</strong>
                 {item.courses.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.courses.map((course, courseIndex) => (
                       <li key={`education-course-${index}-${courseIndex}`}>{course}</li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move education item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('education', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move education item down"
-              disabled={index === resume.education.length - 1}
-              onClick={() => moveArrayItemByOffset('education', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'education', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('education', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.education.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('education', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('education', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'education', index })}
+            onDelete={() => requestDeleteArrayItem('education', index)}
+            labels={{
+              moveUp: 'Move education item up',
+              moveDown: 'Move education item down',
+              edit: 'Edit education item',
+              delete: 'Delete education item',
+            }}
+          />
         </div>
       )),
       awards: resume.awards.map((item, index) => (
@@ -656,41 +642,25 @@ function App() {
               {index + 1}. {item.title || 'Untitled award'}
             </p>
             <ul className="section-row-details">
-              <li>Date: {item.date || 'Not set'}</li>
-              <li>Awarder: {item.awarder || 'Not set'}</li>
-              <li>Summary: {item.summary || 'Not set'}</li>
+              <li>{previewDetailLine('Date:', item.date ?? '')}</li>
+              <li>{previewDetailLine('Awarder:', item.awarder ?? '')}</li>
+              <li>{previewDetailLine('Summary:', item.summary ?? '')}</li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move award item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('awards', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move award item down"
-              disabled={index === resume.awards.length - 1}
-              onClick={() => moveArrayItemByOffset('awards', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'awards', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('awards', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.awards.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('awards', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('awards', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'awards', index })}
+            onDelete={() => requestDeleteArrayItem('awards', index)}
+            labels={{
+              moveUp: 'Move award item up',
+              moveDown: 'Move award item down',
+              edit: 'Edit award item',
+              delete: 'Delete award item',
+            }}
+          />
         </div>
       )),
       certificates: resume.certificates.map((item, index) => (
@@ -714,43 +684,27 @@ function App() {
               {index + 1}. {item.name || 'Untitled certificate'}
             </p>
             <ul className="section-row-details">
-              <li>Date: {item.date || 'Not set'}</li>
-              <li>Issuer: {item.issuer || 'Not set'}</li>
-              <li>URL: {item.url || 'Not set'}</li>
+              <li>{previewDetailLine('Date:', item.date ?? '')}</li>
+              <li>{previewDetailLine('Issuer:', item.issuer ?? '')}</li>
+              <li>{previewDetailLine('URL:', item.url ?? '')}</li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move certificate item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('certificates', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move certificate item down"
-              disabled={index === resume.certificates.length - 1}
-              onClick={() => moveArrayItemByOffset('certificates', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setEditingArrayItem({ section: 'certificates', index })
-              }
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('certificates', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.certificates.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('certificates', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('certificates', index, 1)}
+            onEdit={() =>
+              setEditingArrayItem({ section: 'certificates', index })
+            }
+            onDelete={() => requestDeleteArrayItem('certificates', index)}
+            labels={{
+              moveUp: 'Move certificate item up',
+              moveDown: 'Move certificate item down',
+              edit: 'Edit certificate item',
+              delete: 'Delete certificate item',
+            }}
+          />
         </div>
       )),
       publications: resume.publications.map((item, index) => (
@@ -774,44 +728,28 @@ function App() {
               {index + 1}. {item.name || 'Untitled publication'}
             </p>
             <ul className="section-row-details">
-              <li>Publisher: {item.publisher || 'Not set'}</li>
-              <li>Release date: {item.releaseDate || 'Not set'}</li>
-              <li>URL: {item.url || 'Not set'}</li>
-              <li>Summary: {item.summary || 'Not set'}</li>
+              <li>{previewDetailLine('Publisher:', item.publisher ?? '')}</li>
+              <li>{previewDetailLine('Release date:', item.releaseDate ?? '')}</li>
+              <li>{previewDetailLine('URL:', item.url ?? '')}</li>
+              <li>{previewDetailLine('Summary:', item.summary ?? '')}</li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move publication item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('publications', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move publication item down"
-              disabled={index === resume.publications.length - 1}
-              onClick={() => moveArrayItemByOffset('publications', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setEditingArrayItem({ section: 'publications', index })
-              }
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('publications', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.publications.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('publications', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('publications', index, 1)}
+            onEdit={() =>
+              setEditingArrayItem({ section: 'publications', index })
+            }
+            onDelete={() => requestDeleteArrayItem('publications', index)}
+            labels={{
+              moveUp: 'Move publication item up',
+              moveDown: 'Move publication item down',
+              edit: 'Edit publication item',
+              delete: 'Delete publication item',
+            }}
+          />
         </div>
       )),
       skills: resume.skills.map((item, index) => (
@@ -835,51 +773,33 @@ function App() {
               {index + 1}. {item.name || 'Skill group'}
             </p>
             <ul className="section-row-details">
-              <li>Level: {item.level || 'Not set'}</li>
+              <li>{previewDetailLine('Level:', item.level ?? '')}</li>
               <li>
-                Keywords:
+                <strong>Keywords:</strong>
                 {item.keywords.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.keywords.map((keyword, keywordIndex) => (
                       <li key={`skills-keyword-${index}-${keywordIndex}`}>{keyword}</li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move skill item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('skills', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move skill item down"
-              disabled={index === resume.skills.length - 1}
-              onClick={() => moveArrayItemByOffset('skills', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'skills', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('skills', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.skills.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('skills', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('skills', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'skills', index })}
+            onDelete={() => requestDeleteArrayItem('skills', index)}
+            labels={{
+              moveUp: 'Move skill item up',
+              moveDown: 'Move skill item down',
+              edit: 'Edit skill item',
+              delete: 'Delete skill item',
+            }}
+          />
         </div>
       )),
       languages: resume.languages.map((item, index) => (
@@ -903,39 +823,23 @@ function App() {
               {index + 1}. {item.language || 'Language not set'}
             </p>
             <ul className="section-row-details">
-              <li>Fluency: {item.fluency || 'Not set'}</li>
+              <li>{previewDetailLine('Fluency:', item.fluency ?? '')}</li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move language item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('languages', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move language item down"
-              disabled={index === resume.languages.length - 1}
-              onClick={() => moveArrayItemByOffset('languages', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'languages', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('languages', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.languages.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('languages', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('languages', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'languages', index })}
+            onDelete={() => requestDeleteArrayItem('languages', index)}
+            labels={{
+              moveUp: 'Move language item up',
+              moveDown: 'Move language item down',
+              edit: 'Edit language item',
+              delete: 'Delete language item',
+            }}
+          />
         </div>
       )),
       interests: resume.interests.map((item, index) => (
@@ -960,7 +864,7 @@ function App() {
             </p>
             <ul className="section-row-details">
               <li>
-                Keywords:
+                <strong>Keywords:</strong>
                 {item.keywords.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.keywords.map((keyword, keywordIndex) => (
@@ -969,42 +873,24 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move interest item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('interests', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move interest item down"
-              disabled={index === resume.interests.length - 1}
-              onClick={() => moveArrayItemByOffset('interests', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'interests', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('interests', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.interests.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('interests', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('interests', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'interests', index })}
+            onDelete={() => requestDeleteArrayItem('interests', index)}
+            labels={{
+              moveUp: 'Move interest item up',
+              moveDown: 'Move interest item down',
+              edit: 'Edit interest item',
+              delete: 'Delete interest item',
+            }}
+          />
         </div>
       )),
       references: resume.references.map((item, index) => (
@@ -1028,39 +914,23 @@ function App() {
               {index + 1}. {item.name || 'Reference not set'}
             </p>
             <ul className="section-row-details">
-              <li>Reference: {item.reference || 'Not set'}</li>
+              <li>{previewDetailLine('Reference:', item.reference ?? '')}</li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move reference item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('references', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move reference item down"
-              disabled={index === resume.references.length - 1}
-              onClick={() => moveArrayItemByOffset('references', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'references', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('references', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.references.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('references', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('references', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'references', index })}
+            onDelete={() => requestDeleteArrayItem('references', index)}
+            labels={{
+              moveUp: 'Move reference item up',
+              moveDown: 'Move reference item down',
+              edit: 'Edit reference item',
+              delete: 'Delete reference item',
+            }}
+          />
         </div>
       )),
       projects: resume.projects.map((item, index) => (
@@ -1084,13 +954,16 @@ function App() {
               {index + 1}. {item.name || 'Untitled project'}
             </p>
             <ul className="section-row-details">
-              <li>URL: {item.url || 'Not set'}</li>
+              <li>{previewDetailLine('URL:', item.url ?? '')}</li>
               <li>
-                Dates: {item.startDate || 'Not set'} - {item.endDate || 'Present'}
+                {previewDetailLine(
+                  'Dates:',
+                  formatPreviewDateRange(item.startDate, item.endDate),
+                )}
               </li>
-              <li>Description: {item.description || 'Not set'}</li>
+              <li>{previewDetailLine('Description:', item.description ?? '')}</li>
               <li>
-                Highlights:
+                <strong>Highlights:</strong>
                 {item.highlights.length > 0 ? (
                   <ul className="section-row-sublist">
                     {item.highlights.map((highlight, highlightIndex) => (
@@ -1099,42 +972,24 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  ' Not set'
-                )}
+                ) : null}
               </li>
             </ul>
           </div>
-          <div className="row-actions">
-            <button
-              type="button"
-              aria-label="Move project item up"
-              disabled={index === 0}
-              onClick={() => moveArrayItemByOffset('projects', index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              aria-label="Move project item down"
-              disabled={index === resume.projects.length - 1}
-              onClick={() => moveArrayItemByOffset('projects', index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditingArrayItem({ section: 'projects', index })}
-            >
-              Edit item
-            </button>
-            <button
-              type="button"
-              onClick={() => requestDeleteArrayItem('projects', index)}
-            >
-              Delete
-            </button>
-          </div>
+          <ItemRowActions
+            canMoveUp={index > 0}
+            canMoveDown={index < resume.projects.length - 1}
+            onMoveUp={() => moveArrayItemByOffset('projects', index, -1)}
+            onMoveDown={() => moveArrayItemByOffset('projects', index, 1)}
+            onEdit={() => setEditingArrayItem({ section: 'projects', index })}
+            onDelete={() => requestDeleteArrayItem('projects', index)}
+            labels={{
+              moveUp: 'Move project item up',
+              moveDown: 'Move project item down',
+              edit: 'Edit project item',
+              delete: 'Delete project item',
+            }}
+          />
         </div>
       )),
     }),
@@ -1309,7 +1164,7 @@ function App() {
                 }))
                 setEditingArrayItem({ section, index: nextIndex })
               }}
-              actionLabel={section === 'basics' ? 'Edit' : 'Add'}
+              actionVariant={section === 'basics' ? 'edit' : 'add'}
             />
           ))}
         </main>

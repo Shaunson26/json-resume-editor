@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IconDeleteButton } from '../ItemRowActions'
 import type { Basics } from '../../types/resume'
 
 interface BasicsModalProps {
@@ -238,9 +239,10 @@ export function BasicsModal({
                         />
                       </label>
                     </div>
-                    <button type="button" onClick={() => deleteProfile(index)}>
-                      Delete profile
-                    </button>
+                    <IconDeleteButton
+                      ariaLabel="Delete profile"
+                      onClick={() => deleteProfile(index)}
+                    />
                   </div>
                 ))
               ) : (

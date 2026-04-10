@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { IconDeleteButton } from '../ItemRowActions'
 
 interface ArrayItemModalProps<TItem extends object> {
   sectionLabel: string
@@ -110,12 +111,10 @@ export function ArrayItemModal<TItem extends object>({
                               event.target.value,
                             )}
                         />
-                        <button
-                          type="button"
+                        <IconDeleteButton
+                          ariaLabel={`Remove ${label} row`}
                           onClick={() => deleteArrayItemField(key, arrayItemIndex)}
-                        >
-                          Delete
-                        </button>
+                        />
                       </div>
                     ))}
                     <button
