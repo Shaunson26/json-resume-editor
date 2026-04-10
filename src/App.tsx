@@ -48,6 +48,12 @@ function formatPreviewDateRange(startRaw: string, endRaw: string) {
   return end
 }
 
+function formatEducationPreviewTitle(item: EducationItem) {
+  const study = item.studyType?.trim() || 'Program'
+  const area = item.area?.trim() ?? ''
+  return area === '' ? study : `${study} of ${area}`
+}
+
 const sections: ResumeSectionId[] = [
   'basics',
   'skills',
@@ -176,8 +182,8 @@ const createEmptyArrayItem = (
       return {
         institution: '',
         url: '',
-        area: '',
         studyType: '',
+        area: '',
         startDate: '',
         endDate: '',
         score: '',
@@ -580,8 +586,7 @@ function App() {
         >
           <div className="section-row-main">
             <p className="section-row-title">
-              {index + 1}. {item.studyType || 'Program'} in{' '}
-              {item.area || 'Area not set'}
+              {index + 1}. {formatEducationPreviewTitle(item)}
             </p>
             <ul className="section-row-details">
               <li>{previewDetailLine('Institution:', item.institution ?? '')}</li>

@@ -1,6 +1,54 @@
 import { useMemo, useState } from 'react'
 import { IconDeleteButton } from '../ItemRowActions'
 
+const MODAL_FIELD_ORDER_BY_SECTION: Partial<Record<string, string[]>> = {
+  work: [
+    'name',
+    'position',
+    'startDate',
+    'endDate',
+    'url',
+    'summary',
+    'highlights',
+  ],
+  education: [
+    'institution',
+    'url',
+    'studyType',
+    'area',
+    'startDate',
+    'endDate',
+    'score',
+    'courses',
+  ],
+}
+
+const MODAL_FIELD_LABELS: Partial<Record<string, Record<string, string>>> = {
+  education: {
+    studyType: 'Education level',
+  },
+  work: {
+    name: 'Company name',
+    url: 'Company URL',
+    startDate: 'Start date',
+    endDate: 'End date',
+  },
+}
+
+function modalFieldDisplayLabel(sectionLabel: string, fieldKey: string) {
+  return MODAL_FIELD_LABELS[sectionLabel]?.[fieldKey] ?? fieldKey
+}
+
+/** Scalar fields that span both grid columns (e.g. full-width URL, summary). */
+const MODAL_FULL_WIDTH_SCALAR_FIELDS: Partial<Record<string, string[]>> = {
+  work: ['url', 'summary'],
+}
+
+/** Scalar string fields edited with a multi-line textarea (not the array-of-lines textarea). */
+const MODAL_TEXTAREA_SCALAR_FIELDS: Partial<Record<string, string[]>> = {
+  work: ['summary'],
+}
+
 interface ArrayItemModalProps<TItem extends object> {
   sectionLabel: string
   itemIndex: number
@@ -29,7 +77,16 @@ export function ArrayItemModal<TItem extends object>({
     projects: { key: 'highlights', addButtonLabel: 'Add highlight' },
   }
 
-  const keys = useMemo(() => Object.keys(initialValue), [initialValue])
+  const keys = useMemo(() => {
+    const rawKeys = Object.keys(initialValue)
+    const order = MODAL_FIELD_ORDER_BY_SECTION[sectionLabel]
+    if (!order) {
+      return rawKeys
+    }
+    const ordered = order.filter((key) => rawKeys.includes(key))
+    const rest = rawKeys.filter((key) => !order.includes(key))
+    return [...ordered, ...rest]
+  }, [initialValue, sectionLabel])
 
   const updateTextField = (key: string, value: string) => {
     setDraft((previous) => ({ ...previous, [key]: value }) as TItem)
@@ -90,7 +147,9 @@ export function ArrayItemModal<TItem extends object>({
         <div className="modal-grid">
           {keys.map((key) => {
             const value = (draft as Record<string, unknown>)[key]
-            const label = key
+            const displayLabel = modalFieldDisplayLabel(sectionLabel, key)
+            const labelClassName =
+              displayLabel !== key ? 'modal-field-custom-label' : undefined
             const isArray = Array.isArray(value)
             const dynamicArrayField = dynamicArrayFieldConfig[sectionLabel]
 
@@ -98,10 +157,10 @@ export function ArrayItemModal<TItem extends object>({
               if (dynamicArrayField && key === dynamicArrayField.key) {
                 const arrayItems = value.length > 0 ? value.map(String) : ['']
                 return (
-                  <div key={label} className="full-row">
-                    <span>{label}</span>
+                  <div key={key} className="full-row">
+                    <span>{displayLabel}</span>
                     {arrayItems.map((arrayItem, arrayItemIndex) => (
-                      <div key={`${label}-${arrayItemIndex}`} className="row-item">
+                      <div key={`${key}-${arrayItemIndex}`} className="row-item">
                         <input
                           value={arrayItem}
                           onChange={(event) =>
@@ -112,7 +171,7 @@ export function ArrayItemModal<TItem extends object>({
                             )}
                         />
                         <IconDeleteButton
-                          ariaLabel={`Remove ${label} row`}
+                          ariaLabel={`Remove ${displayLabel} row`}
                           onClick={() => deleteArrayItemField(key, arrayItemIndex)}
                         />
                       </div>
@@ -129,8 +188,11 @@ export function ArrayItemModal<TItem extends object>({
               }
 
               return (
-                <label key={label} className="full-row">
-                  {label}
+                <label
+                  key={key}
+                  className={['full-row', labelClassName].filter(Boolean).join(' ')}
+                >
+                  {displayLabel}
                   <textarea
                     rows={4}
                     value={value.map(String).join('\n')}
@@ -140,13 +202,32 @@ export function ArrayItemModal<TItem extends object>({
               )
             }
 
+            const fullWidthScalar =
+              MODAL_FULL_WIDTH_SCALAR_FIELDS[sectionLabel]?.includes(key) ?? false
+            const textareaScalar =
+              MODAL_TEXTAREA_SCALAR_FIELDS[sectionLabel]?.includes(key) ?? false
+            const scalarLabelClass = [
+              fullWidthScalar && 'full-row',
+              labelClassName,
+            ]
+              .filter(Boolean)
+              .join(' ')
+
             return (
-              <label key={label}>
-                {label}
-                <input
-                  value={String(value ?? '')}
-                  onChange={(event) => updateTextField(key, event.target.value)}
-                />
+              <label key={key} className={scalarLabelClass || undefined}>
+                {displayLabel}
+                {textareaScalar ? (
+                  <textarea
+                    rows={4}
+                    value={String(value ?? '')}
+                    onChange={(event) => updateTextField(key, event.target.value)}
+                  />
+                ) : (
+                  <input
+                    value={String(value ?? '')}
+                    onChange={(event) => updateTextField(key, event.target.value)}
+                  />
+                )}
               </label>
             )
           })}

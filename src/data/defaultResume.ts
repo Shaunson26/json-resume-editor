@@ -44,8 +44,8 @@ export const defaultResume: ResumeData = {
     {
       institution: '',
       url: '',
-      area: '',
       studyType: '',
+      area: '',
       startDate: '',
       endDate: '',
       score: '',

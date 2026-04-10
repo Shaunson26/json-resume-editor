@@ -64,8 +64,8 @@ export interface WorkItem {
 export interface EducationItem {
   institution: string
   url: string
-  area: string
   studyType: string
+  area: string
   startDate: string
   endDate: string
   score: string

@@ -135,8 +135,8 @@ export const parseResumeJson = (text: string): ParseResult => {
       ? parsed.education.filter(isRecord).map((item) => ({
           institution: typeof item.institution === 'string' ? item.institution : '',
           url: typeof item.url === 'string' ? item.url : '',
-          area: typeof item.area === 'string' ? item.area : '',
           studyType: typeof item.studyType === 'string' ? item.studyType : '',
+          area: typeof item.area === 'string' ? item.area : '',
           startDate: typeof item.startDate === 'string' ? item.startDate : '',
           endDate: typeof item.endDate === 'string' ? item.endDate : '',
           score: typeof item.score === 'string' ? item.score : '',

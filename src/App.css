@@ -289,6 +289,10 @@ html {
   text-transform: capitalize;
 }
 
+.modal-grid label.modal-field-custom-label {
+  text-transform: none;
+}
+
 .modal-grid .full-row > span:first-child {
   display: block;
   margin-bottom: 0.35rem;
